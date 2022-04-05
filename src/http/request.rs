@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::error::Error;
 
 #[allow(dead_code)]
 pub enum Method {
@@ -46,7 +47,24 @@ impl HTTPRequest {
         }
     }
 
-//    pub fn make_request(int sockfd) {
-//
-//    }
+    pub fn new_from_str(request_str: &str) -> Result<Self, Box<dyn Error>> {
+        let tokens: Vec<&str> = request_str.split(' ').collect();
+        if tokens.len() != 3 {
+            return Err("Incorrect number of tokens for request line".into());
+        }
+        Ok(HTTPRequest::new(
+            Method::new(&tokens[0]),
+            tokens[1].to_owned(),
+            tokens[2].to_owned(),
+        ))
+    }
+
+    pub fn parse_header(&mut self, header_str: &str) -> Result<(), Box<dyn Error>> {
+        let tokens: Vec<&str> = header_str.split(": ").collect();
+        if tokens.len() != 2 {
+            return Err("Incorrect number of tokens for header line".into());
+        }
+        self.headers.insert(tokens[0].to_owned(), tokens[1].to_owned());
+        Ok(())
+    }
 }
