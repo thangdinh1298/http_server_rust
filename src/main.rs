@@ -7,6 +7,9 @@ use std::io::{BufRead, BufReader, Read};
 use std::net::TcpListener;
 use std::net::TcpStream;
 
+const REQUEST_LINE_MAX_SIZE: usize = 8096;
+const HEADER_LINE_MAX_SIZE: usize = 8096;
+
 fn main() {
     let method = request::Method::new("get");
     //    let rq = request::HTTPRequest::new(method, "xyz".to_owned(), "1.0".to_owned());
@@ -55,21 +58,31 @@ fn readline_or_max(
     Ok((line, bytes_read))
 }
 
+fn handler_42(
+    request: &request::HTTPRequest,
+    response: &mut response::HTTPResponse,
+) -> Result<(), Box<dyn Error>> {
+    response.set_header("Content-Type", "text");
+    response.set_header("Content-Length", "2");
+    println!("Writing\n");
+    response.write_to_body("42".as_bytes())?;
+    Ok(())
+}
+
 fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
-    let request_line = readline_or_max(&mut stream, 8096)?.0;
+    let request_line = readline_or_max(&mut stream, REQUEST_LINE_MAX_SIZE)?.0;
 
     if !request_line.ends_with("\r\n") {
-        return Err("Request line must end with \\r\\n".into())
+        return Err("Request line must end with \\r\\n".into());
     }
     println!("Request line {}", request_line);
     let mut request = request::HTTPRequest::new_from_str(&request_line)?;
 
     let mut bytes_read = 0;
-    while bytes_read < 8096 {
-        let (header_line, n) = readline_or_max(&mut stream, 8096 - bytes_read)?;
+    while bytes_read < HEADER_LINE_MAX_SIZE {
+        let (header_line, n) = readline_or_max(&mut stream, HEADER_LINE_MAX_SIZE - bytes_read)?;
 
         bytes_read += n;
-
         if !header_line.ends_with('\n') {
             return Err("Header limit of 8096 bytes reached".into());
         } else {
@@ -81,6 +94,6 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let response = response::HTTPResponse::new(stream);
-    Ok(())
+    let mut response = response::HTTPResponse::new(stream);
+    Ok(handler_42(&request, &mut response)?)
 }
