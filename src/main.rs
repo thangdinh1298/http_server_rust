@@ -1,5 +1,6 @@
 mod http;
 use http::request;
+use http::response;
 
 use std::error::Error;
 use std::io::{BufRead, BufReader, Read};
@@ -79,5 +80,7 @@ fn handle_client(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
             }
         }
     }
+
+    let response = response::HTTPResponse::new(stream);
     Ok(())
 }
