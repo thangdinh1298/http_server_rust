@@ -67,4 +67,8 @@ impl HTTPRequest {
         self.headers.insert(tokens[0].to_owned(), tokens[1].to_owned());
         Ok(())
     }
+
+    pub fn params(&self) -> &HashMap<String, String> {
+        &self.params
+    }
 }
