@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use std::io::Result;
-use std::io::{Error, Write};
+use std::io::Write;
 use std::net::TcpStream;
 
+#[allow(dead_code)]
 pub struct HTTPResponse {
     message: String,
     code: u16,
@@ -12,6 +13,7 @@ pub struct HTTPResponse {
     status_and_headers_sent: bool,
 }
 
+#[allow(dead_code)]
 impl HTTPResponse {
     pub fn new(stream: TcpStream) -> Self {
         HTTPResponse {
@@ -37,7 +39,7 @@ impl HTTPResponse {
     }
 
     pub fn write_to_body(&mut self, buf: &[u8]) -> Result<usize> {
-        if (!self.status_and_headers_sent) {
+        if !self.status_and_headers_sent {
             self.write_status_and_header()?;
         }
         Ok(self.body.write(buf)?)

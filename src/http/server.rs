@@ -1,13 +1,12 @@
 use super::request;
 use super::response;
-use crate::utils;
 
 use std::thread;
 use std::error::Error;
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::collections::VecDeque;
-use std::sync::{Mutex, MutexGuard, Condvar, Arc};
+use std::sync::{Mutex, Condvar, Arc};
 
 use crate::utils::utils::readline_or_max;
 use crate::handlers::test_handlers::handler_42;
@@ -94,7 +93,7 @@ impl HTTPServer {
 
     pub fn run(mut self) -> Result<(), Box<dyn Error>> {
         {
-            for i in 0..self.thread_num {
+            for _ in 0..self.thread_num {
                 let con_buffer = self.con_buffer.clone();
                 self.threads.push(thread::spawn(move || {
                     work(con_buffer);

@@ -8,6 +8,7 @@ pub enum Method {
     INVALID,
 }
 
+#[allow(dead_code)]
 impl Method {
     pub fn to_string(&self) -> &str {
         match self {
@@ -26,6 +27,7 @@ impl Method {
     }
 }
 
+#[allow(dead_code)]
 pub struct HTTPRequest {
     method: Method,
     uri: String,
@@ -35,6 +37,7 @@ pub struct HTTPRequest {
     params: HashMap<String, String>,
 }
 
+#[allow(dead_code)]
 impl HTTPRequest {
     fn new(method: Method, uri: String, version: String) -> Self {
         HTTPRequest {
