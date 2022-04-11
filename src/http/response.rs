@@ -61,7 +61,7 @@ impl HTTPResponse {
 
 impl Drop for HTTPResponse {
     fn drop(&mut self) {
-        if (!self.status_and_headers_sent) {
+        if !self.status_and_headers_sent {
             self.write_status_and_header();
             //TODO: What happens if write status and headers fail here ?
             //Write a separate cleanup method for response before dropping ?
