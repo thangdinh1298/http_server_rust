@@ -24,6 +24,7 @@ pub fn readline_or_max(
             break;
         }
         line.push(byte[0] as char);
+        bytes_read += 1;
 
         if byte[0] == 0xA {
             break;
