@@ -8,6 +8,8 @@ use std::net::TcpStream;
 use std::collections::VecDeque;
 use std::sync::{Mutex, Condvar, Arc};
 
+use ini::Ini;
+
 use crate::utils::utils::readline_or_max;
 use crate::handlers::test_handlers::handler_42;
 
@@ -82,7 +84,14 @@ fn get_con(con_buffer: &Arc<(Mutex<VecDeque<TcpStream>>, Condvar)>) -> TcpStream
 }
 
 impl HTTPServer {
-    pub fn new(thread_num: usize, con_buffer_len: usize) -> Self {
+    pub fn new(/*thread_num: usize, con_buffer_len: usize*/ conf: Ini) -> Self {
+        let section = conf.section(Some("Server")).unwrap();
+        let thread_num = section.get("thread_num").unwrap().parse::<usize>().unwrap();
+        let con_buffer_len = section.get("con_buffer_len").unwrap().parse::<usize>().unwrap();
+        println!("Configuration:");
+        println!("\tThread num: {}", thread_num);
+        println!("\tCon buffer len: {}", con_buffer_len);
+
         HTTPServer {
             threads: Vec::with_capacity(thread_num),
             thread_num: thread_num,
