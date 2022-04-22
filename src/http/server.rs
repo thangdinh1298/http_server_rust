@@ -21,6 +21,7 @@ pub struct HTTPServer {
     thread_num: usize,
     con_buffer: Arc<(Mutex<VecDeque<TcpStream>>, Condvar)>,
     con_buffer_len: usize,
+    config: Ini,
 }
 
 fn work(con_buffer: Arc<(Mutex<VecDeque<TcpStream>>, Condvar)>) {
@@ -96,7 +97,8 @@ impl HTTPServer {
             threads: Vec::with_capacity(thread_num),
             thread_num: thread_num,
             con_buffer: Arc::new((Mutex::new(VecDeque::with_capacity(con_buffer_len)), Condvar::new())),
-            con_buffer_len: con_buffer_len
+            con_buffer_len: con_buffer_len,
+            config: conf,
         }
     }
 
@@ -110,7 +112,7 @@ impl HTTPServer {
             }
         }
 
-        let listener = TcpListener::bind("127.0.0.1:8080")?;
+        let listener = TcpListener::bind(format!("{}:{}", "127.0.0.1", self.config.section(Some("Server")).unwrap().get("port").unwrap()))?;//TODO replace unwrap with expect to print meaningful messages
         loop {
             match listener.accept() {
                 Ok((socket, _addr)) => {
